@@ -1,0 +1,182 @@
+{% extends "base.twig" %}
+
+
+{% block content %}
+    <div class="container-fluid d-flex flex-column mt-5">
+        <div class="jumbotron bg-secondary w-100">
+            Intermedialer Vergleich
+        </div>
+        <div  class="d-flex justify-content-around">
+            <div id="documents-list" class="w-25 ">
+                <h3 class="text-center">Dokumente</h3>
+                <ul class="list-group " style="overflow-y: auto; max-height: 65vh">
+                    {% for document in data.documents %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    {{ document.identifier }}
+                                    <br>
+                                    <small>
+                                        {{ document.country }}, {{ document.location }}, {{ document.repository }}, {{ document.idno }}
+                                    </small>
+                                    <div id="tpages{{ document.id }}" class="collapse">
+                                        <small>
+                                            <ul class="list-group list-group-horizontal">
+                                                {% for transc in document.transcriptions %}
+                                                    {% for page in transc.pages %}
+                                                    <li class="list-group-item" hx-get="{{ webInfo.baseurl }}plaintexts/{{ page.plaintext_id }}" hx-target="#fulltext_wrapper" hx-swap="outerHTML"><a data-toggle="tab" href="#fulltext-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
+                                                        {% endfor %}
+                                                {% endfor %}
+                                            </ul>
+                                        </small>
+                                    </div>
+                                    <div id="fpages{{ document.id }}" class="collapse">
+                                        <small>
+                                            <ul class="list-group list-group-horizontal">
+                                                {% for faks in document.faksimile %}
+                                                    {% for page in faks.pages %}
+                                                        <li class="list-group-item list-group-item-faks" data-pageId="{{ page.id }}" data-imgLink="{{ page.image_link }}"><a data-toggle="tab" href="#img-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </ul>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-right border-left p-" style="min-width: 4vw">
+                                    <a href="#tpages{{ document.id }}" class="collapser" data-toggle="collapse" >
+                                        <i class="fas fa-align-justify {% if document.transcriptions.0.pages|length == 0 %}text-secondary{% endif %}" data-toggle="tooltip" title="Plaintext"></i>
+                                    </a>
+                                    <a href="#fpages{{ document.id }}" class="collapser" data-toggle="collapse" >
+                                        <i class="far fa-file-image {% if document.faksimile.0.pages|length == 0 %}text-secondary{% endif %}" data-toggle="tooltip" title="Faksimile"></i>
+                                    </a>
+
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+            <div id="quick-viewer" class="w-50 h-75" style="overflow-y: auto">
+                <h3 class="text-center">Quickviewer</h3>
+                <div>
+                    <div class="tab-content">
+                        <div id="fulltext-viewer" class="tab-pane fade" style="overflow-y: auto; max-height: 65vh">
+                            <div id="fulltext_wrapper">
+                            </div>
+                        </div>
+                        <div id="img-viewer" class="tab-pane fade">
+                            <div id="map_container" class="d-flex justify-content-start " style="min-height: 65vh">
+                                <div id="map" class="leaflet-container" style="width: 100%" >
+                                </div>
+                            </div>
+                            <script>
+                                var map = L.map('map', {
+                                    crs: L.CRS.Simple,
+                                    zoom: 5
+                                });
+                                var bounds = [[0,0], [1000,1000]];
+                                map.fitBounds(bounds, true);
+                            </script>
+                        </div>
+                        <div id="chunks-viewer" class="tab-pane fade" style="overflow-y: auto; max-height: 65vh">
+                            {% for work in data.works %}
+                                {% for chunk in work.chunks%}
+                                <div id="chunk-box{{ chunk.id }}" class="chunk-box" hidden>
+
+                                    <ul class="list-group small">
+                                        {% for occ in chunk.occurrences  %}
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>
+                                                    {% if occ.type == "text" %}
+                                                        <i class="fas fa-align-justify"></i> {{ occ.transcription_page.transcription.document.country }}, {{ occ.transcription_page.transcription.document.location }}, {{ occ.transcription_page.transcription.document.repository }}, {{ occ.transcription_page.transcription.document.idno }}, <strong>{% if occ.transcription_page.page_folio %}{{ occ.transcription_page.page_folio }}{% else %}{{ occ.transcription_page.page_number }}{% endif %}</strong>
+                                                    {% elseif occ.type == "faksimile" %}
+                                                        <i class="far fa-file-image"></i> {{ occ.faksimile_page.faksimile.document.country }}, {{ occ.faksimile_page.faksimile.document.location }}, {{ occ.faksimile_page.faksimile.document.repository }}, {{ occ.faksimile_page.faksimile.document.idno }}, <strong>{% if occ.faksimile_page.page_folio %}{{ occ.faksimile_page.page_folio }}{% else %}{{ occ.faksimile_page.page_number }}{% endif %}</strong>
+                                                    {% endif %}
+                                                </span>
+                                                <a href="{{ webInfo.baseurl }}/chunks/{{ chunk.id }}?occurrence={{ occ.id }}" data-toggle="tooltip" title="Show/Compare Chunk"><i class="fas fa-bullseye"></i></a>
+
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="works-list" class="w-25">
+                <h3 class="text-center">Werke</h3>
+                <ul class="list-group" style="overflow-y: auto; max-height: 65vh">
+                    {% for work in data.works %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    {{ work.name }}
+                                    <br>
+                                    <small>
+                                        {{ work.author }}
+                                    </small>
+                                    <div id="cpages{{ work.id }}" class="collapse">
+                                        <small>
+                                            <ul class="list-group list-group-horizontal">
+                                                {% for chunk in work.chunks %}
+                                                    <li class="list-group-item list-group-item-chunks" data-chunkId="{{ chunk.id }}"><a data-toggle="tab" href="#chunks-viewer">{{ chunk.chunk_no }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-right border-left p-" style="min-width: 4vw">
+                                    <a href="#cpages{{ work.id }}" class="collapser" data-toggle="collapse" >
+                                        <i class="fas fa-code {% if work.chunks|length == 0 %}text-secondary{% endif %}" data-toggle="tooltip" title="Chunks"></i>
+                                    </a>
+
+                                </div>
+
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        $('.list-group-item-faks').on("click", function () {
+
+            map.invalidateSize();
+            /*
+            get image link from data attribute
+            */
+            let imgLink = $(this).attr("data-imgLink");
+            /*
+            reset all layers(iiif-images) from map
+             */
+            map.eachLayer(function (layer) {
+                map.removeLayer(layer);
+            });
+            L.tileLayer.iiif(imgLink).addTo(map);
+        });
+
+        $('.list-group-item-chunks').on("click", function () {
+            let chunkId = $(this).attr('data-chunkId');
+            $(".chunk-box").attr('hidden', true);
+            $("#chunk-box"+chunkId).attr('hidden', false);
+        });
+
+        $('.collapser').on("click", function () {
+            $(".collapse").removeClass("show");
+        });
+
+        $('[data-toggle="tab"]').on("click", function () {
+            $('[data-toggle="tab"]').removeClass("active");
+        })
+    </script>
+
+
+{% endblock %}

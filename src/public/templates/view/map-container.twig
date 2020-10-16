@@ -1,0 +1,68 @@
+<div id="map_container" class="d-flex justify-content-start text-dark" style="overflow-x: auto">
+    <script>
+        function getDimensions(url){
+            var result = null;
+            $.ajax({
+                async: false,
+                url: url,
+                dataType: "json",
+                success: function(data){
+                    result = data;
+                }}
+            );
+            return result;
+        }
+
+        function getYCoords(leafletImgHeight, relativeY){
+            return leafletImgHeight / 100 * relativeY;
+        }
+
+        function getXCoords(leafletImgWidth, relativeX){
+            return leafletImgWidth / 100 * relativeX;
+        }
+    </script>
+    {% for mainocc in data.mainOccurrence %}
+        <div class="card" style="min-height: 80vh; min-width: 50vw">
+            <div class="w-100 card-header text-center">
+                {% if mainocc.faksimile_page.page_folio %}
+                    Folio: {{ mainocc.faksimile_page.page_folio }}
+                {% else %}
+                    Seitennummer: {{ mainocc.faksimile_page.page_number }}
+                {% endif %}
+            </div>
+            <div id="map{{ loop.index }}" class="leaflet-container border border-secondary" >
+
+            </div>
+            <script>
+                var map{{ loop.index }} = L.map('map{{ loop.index }}', {
+                    crs: L.CRS.Simple,
+                    center: [0, 0],
+                    zoom: 5
+                });
+
+                var url{{ loop.index }} = "{{ mainocc.faksimile_page.image_link }}";
+                var height{{ loop.index }};
+                var width{{ loop.index }};
+                var dimensions{{ loop.index }} = getDimensions(url{{ loop.index }});
+
+                let imgHeight{{ loop.index }}=dimensions{{ loop.index }}["height"];
+                let imgWidth{{ loop.index }}=dimensions{{ loop.index }}["width"];
+                var leafletImgHeight{{ loop.index }} = imgHeight{{ loop.index }} / -32.25;
+                var leafletImgWidth{{ loop.index }} = imgWidth{{ loop.index }} / 32.0;
+                console.log(getYCoords(leafletImgHeight{{ loop.index }}, 100));
+                //var chunk = [[-30.559322, 30.767822], [30.1210604, 30.021240]];
+                var chunk{{ loop.index }} = [[getYCoords(leafletImgHeight{{ loop.index }}, {{ mainocc.faksimile_property.y1 }}),getXCoords(leafletImgWidth{{ loop.index }}, {{ mainocc.faksimile_property.x1 }})],[getYCoords(leafletImgHeight{{ loop.index }}, {{ mainocc.faksimile_property.y2 }}), getXCoords(leafletImgWidth{{ loop.index }}, {{ mainocc.faksimile_property.x2 }})]];
+                console.log(imgWidth{{ loop.index }}, getXCoords(32));
+                L.rectangle(chunk{{ loop.index }}).addTo(map{{ loop.index }});
+                var bounds{{ loop.index }} = [[0,0], [1000,1000]];
+                L.tileLayer.iiif(url{{ loop.index }}).addTo(map{{ loop.index }});
+                map{{ loop.index }}.fitBounds(bounds{{ loop.index }}, true);
+                //map{{ loop.index }}.invalidateSize();
+            </script>
+        </div>
+
+    {% endfor %}
+
+
+
+</div>

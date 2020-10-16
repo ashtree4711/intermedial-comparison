@@ -1,0 +1,66 @@
+{% extends "base.twig" %}
+
+
+{% block content %}
+
+    <div class="container-fluid d-flex justify-content-md-between mt-5">
+        <div id="main-card" class="card w-50 bg-dark text-white"  style="min-height: 87vh!important; max-height: 87vh!important; overflow-x: auto">
+            <div class="card-header">
+                {% if data.mainBox == "faksimile" %}
+                    <span class="badge badge-primary">Hauptreferenz: Faksimile</span> {{ data.mainOccurrence.0.faksimile_page.faksimile.identifier }}
+                {% else %}
+                    <span class="badge badge-primary">Hauptreferenz: Transcription</span> {{ data.mainOccurrence.0.transcription_page_with_text.transcription.identifier }}
+                {% endif %}
+
+
+            </div>
+            {% if data.mainBox == "faksimile" %}
+                {% include 'view/map-container.twig' %}
+            {% else %}
+                {% include 'view/text-container.twig' %}
+            {% endif %}
+        </div>
+        <div class="w-auto bg-secondary"  style="min-height: 87vh!important; max-height: 87vh!important">
+            <div class="btn-group-vertical">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                        Faksimile
+                    </button>
+                    <div class="dropdown-menu">
+                        {% for occ in data.occurrences %}
+                            {% if occ.faksimile_page %}
+                            <a class="dropdown-item {% if occ.faksimile_page.faksimile_id == data.mainOccurrence.0.faksimile_page.faksimile_id %}disabled{% endif %}" href="#">
+                                {{ occ.faksimile_page.faksimile.identifier }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                        Transkriptionen
+                    </button>
+                    <div class="dropdown-menu">
+                        {% for occ in data.occurrences %}
+                            {% if occ.transcription_page %}
+                            <a class="dropdown-item {% if occ.transcription_page.transcription_id == data.mainOccurrence.0.transcription_page_with_text.transcription_id %}disabled{% endif %}" href="#">
+                           {{ occ.transcription_page.transcription.identifier }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-info w-50 text-white" style="min-height: 87vh!important; max-height: 87vh!important; overflow-x: auto">
+            <div class="card-header">
+
+            </div>
+            {{ data.occurrences|json_encode }}
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
