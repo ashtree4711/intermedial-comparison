@@ -14,8 +14,8 @@
     border-radius: 0;
 }
 .leaflet-container {
-    width: 100%;
-    height: 100%;
+    width: 100%!important;
+    height: 100%!important;
 }
 
 .list-group {
@@ -28,4 +28,9 @@
     unicode-bidi: bidi-override;
     direction: rtl;
     text-align: right;
+}
+
+.view-area {
+    min-height: 87vh!important;
+    max-height: 87vh!important;
 }

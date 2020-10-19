@@ -4,7 +4,6 @@
                         <code>{% if mainocc.transcription_page_with_text.page_folio %}Folio: {{ mainocc.transcription_page_with_text.page_folio }}{% else %}Seitennummer: {{ mainocc.transcription_page_with_text.page_folio }}{% endif %}  </code>
                         <p class="{% if mainocc.transcription_page_with_text.language != "lat" %}rtl{% else %}{% endif %}">{{ mainocc.chunk_text }}</p>
                 {% endfor %}
-
         </div>
 
 </div>

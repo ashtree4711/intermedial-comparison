@@ -4,12 +4,32 @@
 {% block content %}
 
     <div class="container-fluid d-flex justify-content-md-between mt-5">
-        <div id="main-card" class="card w-50 bg-dark text-white"  style="min-height: 87vh!important; max-height: 87vh!important; overflow-x: auto">
+        <div id="main-card" class="card view-area w-50 bg-dark text-white overflow-auto" >
             <div class="card-header">
                 {% if data.mainBox == "faksimile" %}
-                    <span class="badge badge-primary">Hauptreferenz: Faksimile</span> {{ data.mainOccurrence.0.faksimile_page.faksimile.identifier }}
+                    <span class="badge badge-light">Chunk {{ data.chunkInfo.chunk_no }}</span>
+                    <span class="badge badge-secondary">{{ data.chunkInfo.work.name }}, {{ data.chunkInfo.work.author }}</span>
+                    <span class="badge badge-primary">
+                    {{ data.mainOccurrence.0.faksimile_page.faksimile.document.country }},
+                    {{ data.mainOccurrence.0.faksimile_page.faksimile.document.location }},
+                    {{ data.mainOccurrence.0.faksimile_page.faksimile.document.repository }},
+                    {{ data.mainOccurrence.0.faksimile_page.faksimile.document.idno }}
+                    </span>
+                    <span class="badge badge-info">
+                        Faksimile
+                    </span>
                 {% else %}
-                    <span class="badge badge-primary">Hauptreferenz: Transcription</span> {{ data.mainOccurrence.0.transcription_page_with_text.transcription.identifier }}
+                    <span class="badge badge-light">Chunk {{ data.chunkInfo.chunk_no }}</span>
+                    <span class="badge badge-secondary">{{ data.chunkInfo.work.name }}, {{ data.chunkInfo.work.author }}</span>
+                    <span class="badge badge-primary">
+                    {{ data.mainOccurrence.0.transcription_page_with_text.transcription.document.country }},
+                    {{ data.mainOccurrence.0.transcription_page_with_text.transcription.document.location }},
+                    {{ data.mainOccurrence.0.transcription_page_with_text.transcription.document.repository }},
+                    {{ data.mainOccurrence.0.transcription_page_with_text.transcription.document.idno }}
+                    </span>
+                    <span class="badge badge-info">
+                        Transkription
+                    </span>
                 {% endif %}
 
 
@@ -20,7 +40,7 @@
                 {% include 'view/text-container.twig' %}
             {% endif %}
         </div>
-        <div class="w-auto bg-secondary"  style="min-height: 87vh!important; max-height: 87vh!important">
+        <div class="w-auto bg-secondary view-area" >
             <div class="btn-group-vertical">
                 <div class="btn-group">
                     <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
@@ -29,7 +49,7 @@
                     <div class="dropdown-menu">
                         {% for occ in data.occurrences %}
                             {% if occ.faksimile_page %}
-                            <a class="dropdown-item {% if occ.faksimile_page.faksimile_id == data.mainOccurrence.0.faksimile_page.faksimile_id %}disabled{% endif %}" href="#">
+                            <a data-occ="{{  occ.id }}" data-identifier="{{ occ.faksimile_page.faksimile.identifier }}" id="dd-{{ occ.id }}" class="occ-item dropdown-item {% if occ.faksimile_page.faksimile_id == data.mainOccurrence.0.faksimile_page.faksimile_id %} border border-primary disabled{% endif %}" href="#" hx-get="{{ webInfo.baseurl }}chunks/{{ data.chunkInfo.id }}/{{ occ.id }}" hx-target="#secondary_wrapper" hx-swap="afterend" >
                                 {{ occ.faksimile_page.faksimile.identifier }}
                             </a>
                             {% endif %}
@@ -43,7 +63,7 @@
                     <div class="dropdown-menu">
                         {% for occ in data.occurrences %}
                             {% if occ.transcription_page %}
-                            <a class="dropdown-item {% if occ.transcription_page.transcription_id == data.mainOccurrence.0.transcription_page_with_text.transcription_id %}disabled{% endif %}" href="#">
+                            <a data-occ="{{  occ.id }}" data-identifier="{{ occ.transcription_page.transcription.identifier }}" id="dd-{{ occ.id }}" class="occ-item dropdown-item {% if occ.transcription_page.transcription_id == data.mainOccurrence.0.transcription_page_with_text.transcription_id %} border border-primary disabled{% endif %}" href="#" hx-get="{{ webInfo.baseurl }}chunks/{{ data.chunkInfo.id }}/{{ occ.id }}" hx-target="#secondary_wrapper" hx-swap="afterend">
                            {{ occ.transcription_page.transcription.identifier }}
                             </a>
                             {% endif %}
@@ -51,14 +71,87 @@
                     </div>
                 </div>
             </div>
+            <hr class="mt-3">
+            <div class="mt-3">
+                <ul class="list-group small p-0" id="navigation-list">
+
+                </ul>
+            </div>
         </div>
-        <div class="card bg-info w-50 text-white" style="min-height: 87vh!important; max-height: 87vh!important; overflow-x: auto">
-            <div class="card-header">
+        <div class="card view-area bg-light w-50 text-dark overflow-auto">
+            <div id="secondary_wrapper" class="row" >
+
 
             </div>
-            {{ data.occurrences|json_encode }}
         </div>
     </div>
+    <script>
+        $(".occ-item").on("click", function () {
+            $(this).addClass('disabled border border-success');
+            var anchor = $(this).attr("data-occ");
+            var identifier = $(this).attr("data-identifier");
+            $("#navigation-list").append('<a id="linker'+anchor+'" href="#box'+anchor+'"><li class="list-group-item p-0 list-group-item-secondary d-flex justify-content-between"><div></div>'+identifier+'<div><i class="text-primary far fa-dot-circle"></i></div></li></a>')
+
+        });
+
+        $(document).on("click", ".close-box",  function () {
+            console.log($(this).attr("data-occ"));
+            var target = "#dd-"+$(this).attr("data-occ");
+            $(this).closest(".occ-box").remove();
+            $(target).removeClass("disabled border border-success")
+
+           $("#linker"+$(this).attr("data-occ")).remove();
+
+
+        });
+
+
+        function createMap(id, image_link, y1, x1, y2, x2) {
+            var map = L.map(id, {
+                crs: L.CRS.Simple,
+                center: [0, 0],
+                zoom: 5
+            });
+
+            var url = image_link;
+            var dimensions = getDimensions(url);
+            let imgHeight=dimensions["height"];
+            let imgWidth=dimensions["width"];
+            var leafletImgHeight = imgHeight / -32.25;
+            var leafletImgWidth = imgWidth / 32.0;
+            var chunk = [[getYCoords(leafletImgHeight, y1),getXCoords(leafletImgWidth, x1)],[getYCoords(leafletImgHeight, y2), getXCoords(leafletImgWidth, x2)]];
+            L.rectangle(chunk).addTo(map);
+            var bounds = [[0,0], [1000,1000]];
+            L.tileLayer.iiif(url).addTo(map);
+            map.fitBounds(bounds, true);
+            map.invalidateSize();
+        }
+
+        function getDimensions(url){
+            var result = null;
+            $.ajax({
+                async: false,
+                url: url,
+                dataType: "json",
+                success: function(data){
+                    result = data;
+                }}
+            );
+            return result;
+        }
+        function getYCoords(leafletImgHeight, relativeY){
+            return leafletImgHeight / 100 * relativeY;
+        }
+
+        function getXCoords(leafletImgWidth, relativeX){
+            return leafletImgWidth / 100 * relativeX;
+        }
+
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
 
 
 

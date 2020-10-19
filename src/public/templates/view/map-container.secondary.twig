@@ -1,0 +1,48 @@
+<div id="box{{ data.0.id }}" class="card d-flex d-inline text-dark p-0 occ-box" style="min-height: 100%; min-width:100%;">
+    <div class="card-header w-100 d-flex justify-content-between">
+        <div>
+            <span class="badge badge-primary">
+            {{ data.0.faksimile_page.faksimile.document.country }},
+            {{ data.0.faksimile_page.faksimile.document.location }},
+            {{ data.0.faksimile_page.faksimile.document.repository }},
+            {{ data.0.faksimile_page.faksimile.document.idno }}
+            </span>
+            <span class="badge badge-info">Faksimile</span>
+
+        </div>
+        <div>
+            <a href="#" class="text-danger close-box" data-occ="{{  data.0.id }}">
+                <i class="fas fa-times-circle"></i>
+            </a>
+        </div>
+
+    </div>
+    <div class="card-body d-flex justify-content-start p-0" style="overflow-x: auto">
+        {% for mainocc in data %}
+            <div class="card map-card" style="min-height: 80vh; min-width: 50vw">
+                <div class="w-100 text-center">
+                    {% if mainocc.faksimile_page.page_folio %}
+                        Folio: {{ mainocc.faksimile_page.page_folio }}
+                    {% else %}
+                        Seitennummer: {{ mainocc.faksimile_page.page_number }}
+                    {% endif %}
+                </div>
+                <div id="map{{ loop.index }}" class="leaflet-container border border-secondary" >
+                </div>
+
+
+            </div>
+            <script type="text/javascript">
+                createMap("map{{ loop.index }}", "{{ mainocc.faksimile_page.image_link }}", {{ mainocc.faksimile_property.y1 }}, {{ mainocc.faksimile_property.x1 }}, {{ mainocc.faksimile_property.y2 }}, {{ mainocc.faksimile_property.x2 }});
+            </script>
+
+
+        {% endfor %}
+    </div>
+
+
+
+
+
+
+</div>

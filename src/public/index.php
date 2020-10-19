@@ -71,9 +71,10 @@ $capsule->bootEloquent();
 
 $app->get('/', '\App\controllers\SiteController:showStart');
 $app->get('/chunks/{chunk_id}', '\App\controllers\SiteController:showComparison');
+$app->get('/chunks/{chunk_id}/{occurrence_id}', '\App\controllers\SiteController:getOccurrence');
 
 $app->get('/plaintexts/{plaintext_id}', '\App\controllers\SiteController:getPlaintext' );
-
+$app->get('/faksimile/{page_id}', '\App\controllers\SiteController:getFaksimile' );
 
 
 

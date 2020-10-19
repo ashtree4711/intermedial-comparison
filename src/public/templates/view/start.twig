@@ -35,7 +35,7 @@
                                             <ul class="list-group list-group-horizontal">
                                                 {% for faks in document.faksimile %}
                                                     {% for page in faks.pages %}
-                                                        <li class="list-group-item list-group-item-faks" data-pageId="{{ page.id }}" data-imgLink="{{ page.image_link }}"><a data-toggle="tab" href="#img-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
+                                                        <li class="list-group-item list-group-item-faks" data-pageId="{{ page.id }}" data-imgLink="{{ page.image_link }}" hx-get="{{ webInfo.baseurl }}faksimile/{{ page.id }}" hx-target="#img_wrapper" hx-swap="outerHTML"><a data-toggle="tab" href="#img-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
                                                     {% endfor %}
                                                 {% endfor %}
                                             </ul>
@@ -66,24 +66,12 @@
                             </div>
                         </div>
                         <div id="img-viewer" class="tab-pane fade">
-                            <div id="map_container" class="d-flex justify-content-start " style="min-height: 65vh">
-                                <div id="map" class="leaflet-container" style="width: 100%" >
-                                </div>
-                            </div>
-                            <script>
-                                var map = L.map('map', {
-                                    crs: L.CRS.Simple,
-                                    zoom: 5
-                                });
-                                var bounds = [[0,0], [1000,1000]];
-                                map.fitBounds(bounds, true);
-                            </script>
+                            <div id="img_wrapper"></div>
                         </div>
                         <div id="chunks-viewer" class="tab-pane fade" style="overflow-y: auto; max-height: 65vh">
                             {% for work in data.works %}
                                 {% for chunk in work.chunks%}
                                 <div id="chunk-box{{ chunk.id }}" class="chunk-box" hidden>
-
                                     <ul class="list-group small">
                                         {% for occ in chunk.occurrences  %}
                                             <li class="list-group-item d-flex justify-content-between">
@@ -94,7 +82,7 @@
                                                         <i class="far fa-file-image"></i> {{ occ.faksimile_page.faksimile.document.country }}, {{ occ.faksimile_page.faksimile.document.location }}, {{ occ.faksimile_page.faksimile.document.repository }}, {{ occ.faksimile_page.faksimile.document.idno }}, <strong>{% if occ.faksimile_page.page_folio %}{{ occ.faksimile_page.page_folio }}{% else %}{{ occ.faksimile_page.page_number }}{% endif %}</strong>
                                                     {% endif %}
                                                 </span>
-                                                <a href="{{ webInfo.baseurl }}/chunks/{{ chunk.id }}?occurrence={{ occ.id }}" data-toggle="tooltip" title="Show/Compare Chunk"><i class="fas fa-bullseye"></i></a>
+                                                <a href="{{ webInfo.baseurl }}chunks/{{ chunk.id }}?occurrence={{ occ.id }}" data-toggle="tooltip" title="Show/Compare Chunk"><i class="fas fa-bullseye"></i></a>
 
                                             </li>
                                         {% endfor %}
@@ -147,22 +135,6 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
 
-        $('.list-group-item-faks').on("click", function () {
-
-            map.invalidateSize();
-            /*
-            get image link from data attribute
-            */
-            let imgLink = $(this).attr("data-imgLink");
-            /*
-            reset all layers(iiif-images) from map
-             */
-            map.eachLayer(function (layer) {
-                map.removeLayer(layer);
-            });
-            L.tileLayer.iiif(imgLink).addTo(map);
-        });
-
         $('.list-group-item-chunks').on("click", function () {
             let chunkId = $(this).attr('data-chunkId');
             $(".chunk-box").attr('hidden', true);
@@ -175,7 +147,24 @@
 
         $('[data-toggle="tab"]').on("click", function () {
             $('[data-toggle="tab"]').removeClass("active");
-        })
+        });
+
+        function createMap(id, image_link){
+            var map = L.map(id, {
+                crs: L.CRS.Simple,
+                center: [0, 0],
+                zoom: 5
+            });
+            var url = image_link;
+            var bounds = [[0,0], [1000,1000]];
+            L.tileLayer.iiif(url).addTo(map);
+            map.fitBounds(bounds, true);
+            map.invalidateSize();
+
+
+
+
+        }
     </script>
 
 
