@@ -86,6 +86,13 @@ class SiteController extends BaseController {
         $this->view->render($response, 'view/textbox.twig', ["data" => $data]);
     }
 
+    function getPlaintextEdit(Request $request, Response $response){
+        $plaintextId=$request->getAttributes()["plaintext_id"];
+        $data=Plaintext::where("id", "=", $plaintextId)->with("transcription_page")->first();
+        $this->view->render($response, 'view/plaintext-edit.twig', ["data" => $data]);
+
+    }
+
     /**
      * Holt direkt die Daten einer Faksimile-Seite und rendert diese in eine Image Box.
      * @param Request $request

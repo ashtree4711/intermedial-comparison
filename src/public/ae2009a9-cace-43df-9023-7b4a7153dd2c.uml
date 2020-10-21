@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>ae2009a9-cace-43df-9023-7b4a7153dd2c</OriginalElement>
+  <nodes>
+    <node x="0.0" y="226.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.faksimile_pages</node>
+    <node x="0.0" y="568.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.faksimile</node>
+    <node x="445.0" y="430.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.chunks</node>
+    <node x="0.0" y="0.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.transcription_pages</node>
+    <node x="243.0" y="430.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.works</node>
+    <node x="458.0" y="0.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.standoff_properties</node>
+    <node x="232.0" y="0.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.documents</node>
+    <node x="0.0" y="430.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.standoff_properties_text</node>
+    <node x="219.0" y="568.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.transcriptions</node>
+    <node x="539.7333333333333" y="192.74583333333334">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.standoff_properties_faksimile</node>
+    <node x="438.0" y="568.0">ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.plaintexts</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="0.6916426512968299" x="1001.3604166666668" y="425.04583333333335" />
+  <SelectedNodes>
+    <node>ae2009a9-cace-43df-9023-7b4a7153dd2c.TABLE:ict.standoff_properties_faksimile</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+  </Categories>
+</Diagram>
+
