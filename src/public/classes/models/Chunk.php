@@ -14,8 +14,6 @@ class Chunk extends BaseModel
         return $this->hasOne('App\models\Work', "id", "work_id");
     }
 
-
-
     protected $table = "chunks";
     protected $primaryKey ="id";
     public $timestamps = false;

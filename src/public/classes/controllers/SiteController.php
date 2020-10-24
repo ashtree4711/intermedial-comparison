@@ -91,6 +91,8 @@ class SiteController extends BaseController {
         $data=Plaintext::where("id", "=", $plaintextId)->with("transcription_page")->first();
         $this->view->render($response, 'view/plaintext-edit.twig', ["data" => $data]);
 
+
+
     }
 
     /**
