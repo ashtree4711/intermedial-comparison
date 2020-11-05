@@ -23,6 +23,8 @@ $capsule->bootEloquent();
 $app->get('/', '\App\controllers\SiteController:showStart');
 $app->get('/chunks/{chunk_id}', '\App\controllers\SiteController:showComparison');
 $app->get('/chunks/{chunk_id}/{occurrence_id}', '\App\controllers\SiteController:getOccurrence');
+$app->get('/works/{work_id}/chunks/{chunk_no}', '\App\controllers\SiteController:showComparison');
+
 
 $app->get('/plaintexts/{plaintext_id}', '\App\controllers\SiteController:getPlaintext' );
 $app->get('/plaintexts/{plaintext_id}/edit', '\App\controllers\SiteController:getPlaintextEdit' );

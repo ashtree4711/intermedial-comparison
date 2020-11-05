@@ -5,6 +5,7 @@ use App\models\FaksimilePage;
 use App\models\Plaintext;
 use App\models\StandoffProperty;
 use App\operations\ComparisonManager;
+use App\operations\DocumentManager;
 use App\operations\WorkManager;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
@@ -27,8 +28,8 @@ class SiteController extends BaseController {
     function showStart(Request $request, Response $response){
         $webInfo["baseurl"]=$this->baseUrl;
         $data=array();
-        $data["properties"]=StandoffProperty::where("property_name", "=", "chunk")->where("property_value", "=", 1)->get()->toArray();
-        $data["documents"]=Document::with("transcriptions", "faksimile")->get()->toArray();
+        //$data["properties"]=StandoffProperty::where("property_name", "=", "chunk")->where("property_value", "=", 1)->get()->toArray();
+        $data["documents"]=DocumentManager::all();
         $data["works"]=WorkManager::all();
         $this->view->render($response, 'view/start.twig', ["webInfo" => $webInfo, "data" => $data]);
     }
@@ -39,16 +40,14 @@ class SiteController extends BaseController {
      * @param Request $request
      * @param Response $response
      *
-     * GET-Request "/chunks/{chunk_id}"
+     * GET-Request "/works/{work_id}/chunks/{chunk_no}?occurrence={occurrence_id}"
      */
     function showComparison(Request $request, Response $response){
         $webInfo["baseurl"]=$this->baseUrl;
-        $chunkId = $request->getAttributes()["chunk_id"];
+        $chunkNo = $request->getAttributes()["chunk_no"];
+        $workId = $request->getAttributes()["work_id"];
         $params = $request->getQueryParams();
-        $data=ComparisonManager::getData($chunkId, $params);
-        if ($data["chunkInfo"]!=null){
-            $webInfo["comparison"]=true;
-        }
+        $data=ComparisonManager::getData($chunkNo, $workId, $params);
         $this->view->render($response, 'view/chunkviewer.twig', ["webInfo" => $webInfo, "data" => $data]);
     }
 
@@ -70,7 +69,6 @@ class SiteController extends BaseController {
         } else {
             $this->view->render($response, 'view/map-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
         }
-
     }
 
     /**

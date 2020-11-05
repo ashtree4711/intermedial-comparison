@@ -12,21 +12,25 @@ class ComparisonManager
      * Chunk, mitsamt Hintergrundinformationen über das Werk und Chunks im selben Werk, und alle Vorkommen, die diesen
      * Chunk beinhalten. Insofern ein Hauptreferenz gewählt ist, was der Normalfall als Einstiegspunkt in der aktuellen
      * Version ist, wird das Sammeln aller relevanten Informationen über dieses Vorkommen angefordert.
-     * @param $chunkId
+     * @param $chunkNo
+     * @param $workId
      * @param $params
      * @return mixed
      */
-    public static function getData($chunkId, $params){
-        # erhalte Informtionen über den Chunk
+    public static function getData($chunkNo, $workId, $params){
+        # erhalte Informationen über den Chunk
         $data["chunkInfo"]=Chunk::with("work")
-            ->where("id", "=", $chunkId)->first()->toArray();
+            ->where("chunk_no", "=", $chunkNo)
+            ->where("work_id", "=", $workId)
+            ->first()
+            ->toArray();
 
         if ($data["chunkInfo"]!=null){
             # wenn Info zum Chunk vorhanden ist, der Chunk existiert. Hole alle Chunks des Werkes
-            $data["chunks"]=Chunk::where("work_id", "=", $data["chunkInfo"]["work"]["id"])
+            $data["chunks"]=Chunk::where("work_id", "=", $workId)
                 ->get()
                 ->toArray();
-            $data["occurrences"]=self::getOccurrencesByChunkId($chunkId);
+            $data["occurrences"]=self::getOccurrencesByChunkId($data["chunkInfo"]["id"]);
             if (isset($params["occurrence"])){
                 # wenn ein Vorkommen als Parameter mitgegeben wurde. Erschaffe eine Hauptreferenz
                 $data["mainOccurrence"]=StandoffProperty::with("transcription_page", "faksimile_page")
@@ -36,15 +40,15 @@ class ComparisonManager
                 if ($data["mainOccurrence"]!=null){
                     if ($data["mainOccurrence"]["type"]=="text"){
                         $data["mainBox"]="text";
-                        $data["mainOccurrence"]=self::createTextBox($data["mainOccurrence"]);
+                        $data["mainOccurrence"]=self::getOccurrencesWithinTranscription($data["mainOccurrence"]["property_value"], $data["mainOccurrence"]["transcription_page"]["transcription_id"]);
                     } else {
                         $data["mainBox"]="faksimile";
-                        $data["mainOccurrence"]=self::createImageBox($data["mainOccurrence"]);
+                        $data["mainOccurrence"]=self::getOccurrencesWithinFaksimile($data["mainOccurrence"]["property_value"], $data["mainOccurrence"]["faksimile_page"]["faksimile_id"]);
                     }
                 }
             }
         } else {
-            $data = array();
+            $data["error"] = true;
         }
         return $data;
     }
@@ -84,17 +88,6 @@ class ComparisonManager
             }
         }
         return $occurrences;
-
-    }
-
-    /**
-     * Es werden alle Informationen gesammelt, um den Text des Hauptvorkommens des Typs 'Transkription' zu ermöglichen.
-     * @param $mainOccurrence
-     * @return array
-     */
-    private static function createTextBox($mainOccurrence){
-        $mainOccurrence=self::getOccurrencesWithinTranscription($mainOccurrence["property_value"], $mainOccurrence["transcription_page"]["transcription_id"]);
-        return $mainOccurrence;
     }
 
     /**
@@ -124,22 +117,11 @@ class ComparisonManager
                 foreach ($properties as $property)
                     $property["chunk_text"]=substr($property["transcription_page_with_text"]["plaintext"]["content"], $property["text_property"]["index"], $property["text_property"]["length"] );
                     array_push($mainOccurrences, $property);
-
             }
         }
         return $mainOccurrences;
 
 
-    }
-
-    /**
-     * Es werden alle Informationen gesammelt, um das Image und Bounding-Box des Hauptvorkommens des Typs 'Faksimile' zu ermöglichen.
-     * @param $mainOccurrence
-     * @return array
-     */
-    private static function createImageBox($mainOccurrence){
-        $mainOccurrence=self::getOccurrencesWithinFaksimile($mainOccurrence["property_value"], $mainOccurrence["faksimile_page"]["faksimile_id"]);
-        return $mainOccurrence;
     }
 
     /**

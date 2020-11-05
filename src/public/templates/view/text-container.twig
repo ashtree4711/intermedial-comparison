@@ -1,9 +1,17 @@
 <div id="text_container"  style="min-height: 85vh">
         <div class="bg-white text-dark p-1 m-1">
                 {% for mainocc in data.mainOccurrence %}
-                        <code>{% if mainocc.transcription_page_with_text.page_folio %}Folio: {{ mainocc.transcription_page_with_text.page_folio }}{% else %}Seitennummer: {{ mainocc.transcription_page_with_text.page_folio }}{% endif %}  </code>
-                        <p class="{% if mainocc.transcription_page_with_text.language != "lat" %}rtl{% else %}{% endif %}">{{ mainocc.chunk_text }}</p>
+                    {% set tpage = mainocc.transcription_page_with_text %}
+                        <code>
+                            {% if tpage.page_folio %}
+                                Folio: {{ tpage.page_folio }}
+                            {% else %}
+                                Seitennummer: {{ tpage.page_number }}
+                            {% endif %}
+                        </code>
+                        <p class="{% if tpage.language != "lat" %}rtl{% else %}{% endif %}">
+                            {{ mainocc.chunk_text }}
+                        </p>
                 {% endfor %}
         </div>
-
 </div>

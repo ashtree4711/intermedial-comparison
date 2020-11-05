@@ -82,7 +82,7 @@
                                                         <i class="far fa-file-image"></i> {{ occ.faksimile_page.faksimile.document.country }}, {{ occ.faksimile_page.faksimile.document.location }}, {{ occ.faksimile_page.faksimile.document.repository }}, {{ occ.faksimile_page.faksimile.document.idno }}, <strong>{% if occ.faksimile_page.page_folio %}{{ occ.faksimile_page.page_folio }}{% else %}{{ occ.faksimile_page.page_number }}{% endif %}</strong>
                                                     {% endif %}
                                                 </span>
-                                                <a href="{{ webInfo.baseurl }}chunks/{{ chunk.id }}?occurrence={{ occ.id }}" data-toggle="tooltip" title="Show/Compare Chunk"><i class="fas fa-bullseye"></i></a>
+                                                <a href="{{ webInfo.baseurl }}works/{{ work.id }}/chunks/{{ chunk.chunk_no }}?occurrence={{ occ.id }}" data-toggle="tooltip" title="Show/Compare Chunk"><i class="fas fa-bullseye"></i></a>
 
                                             </li>
                                         {% endfor %}
