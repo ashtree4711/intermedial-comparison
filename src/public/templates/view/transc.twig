@@ -1,0 +1,11 @@
+
+<p>
+    {%- for fragment in data.transc2 -%}
+        <span class="{% for property in fragment.properties %}{% if property == "italics" %} font-italic {% elseif property=="bold" %} font-weight-bold {% elseif property == "underline" %} underline {% elseif property == "chunk" %} bg-warning {% endif %}{% endfor %}">
+        {{- fragment.text -}}
+        </span>
+    {%- endfor -%}
+</p>
+<a href="{{ webInfo.baseurl }}transc/{{ data.page.transcription_page.plaintext_id }}/edit">[EDIT]</a>
+
+

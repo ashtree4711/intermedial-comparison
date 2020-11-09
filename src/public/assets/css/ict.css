@@ -30,6 +30,10 @@
     text-align: right;
 }
 
+.underline {
+    text-decoration: underline!important;
+}
+
 .view-area {
     min-height: 87vh!important;
     max-height: 87vh!important;

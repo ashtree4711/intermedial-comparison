@@ -1,11 +1,15 @@
 <?php
 namespace App\controllers;
+use App\models\Chunk;
 use App\models\Document;
 use App\models\FaksimilePage;
 use App\models\Plaintext;
 use App\models\StandoffProperty;
+use App\models\StandoffPropertyText;
+use App\models\Work;
 use App\operations\ComparisonManager;
 use App\operations\DocumentManager;
+use App\operations\TranscManager;
 use App\operations\WorkManager;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
@@ -28,7 +32,6 @@ class SiteController extends BaseController {
     function showStart(Request $request, Response $response){
         $webInfo["baseurl"]=$this->baseUrl;
         $data=array();
-        //$data["properties"]=StandoffProperty::where("property_name", "=", "chunk")->where("property_value", "=", 1)->get()->toArray();
         $data["documents"]=DocumentManager::all();
         $data["works"]=WorkManager::all();
         $this->view->render($response, 'view/start.twig', ["webInfo" => $webInfo, "data" => $data]);
@@ -64,7 +67,7 @@ class SiteController extends BaseController {
         $chunkId = $request->getAttributes()["chunk_id"];
         $occId = $request->getAttributes()["occurrence_id"];
         $data = ComparisonManager::getOccurrenceById($chunkId, $occId);
-        if ($data[0]["type"]=="text"){
+        if ($data[0][0]["type"]=="text"){
             $this->view->render($response, 'view/text-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
         } else {
             $this->view->render($response, 'view/map-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
@@ -84,13 +87,27 @@ class SiteController extends BaseController {
         $this->view->render($response, 'view/textbox.twig', ["data" => $data]);
     }
 
-    function getPlaintextEdit(Request $request, Response $response){
-        $plaintextId=$request->getAttributes()["plaintext_id"];
-        $data=Plaintext::where("id", "=", $plaintextId)->with("transcription_page")->first();
-        $this->view->render($response, 'view/plaintext-edit.twig', ["data" => $data]);
+    function getTranscription(Request $request, Response $response){
+        $webInfo["baseurl"]=$this->baseUrl;
+        $transcId=$request->getAttributes()["transc_id"];
+        $data["id"]=$transcId;
+        $data["page"]=Plaintext::where("id", "=", $transcId)->with("transcription_page")->first();
+        $data["works"]=Work::with("chunks")->get()->toArray();
+        $data["properties"]=StandoffProperty::where("transc_page_id", "=", $transcId)->get();
+        //$data["transc"]=TranscManager::getStyledTranscription($transcId, $data["page"]["content"]);
+        $data["transc2"]=TranscManager::generateTranscFragmentsPerPage($transcId);
+        $this->view->render($response, 'view/transc-edit.twig', ["webInfo" => $webInfo, "data" => $data]);
+    }
 
 
-
+    function  getStyledTranscription(Request $request, Response $response){
+        $webInfo["baseurl"]=$this->baseUrl;
+        $transcId=$request->getAttributes()["transc_id"];
+        $data["id"]=$transcId;
+        $data["page"]=Plaintext::where("id", "=", $transcId)->with("transcription_page")->first();
+        //$data["transc"]=TranscManager::getStyledTranscription($transcId, $data["page"]["content"]);
+        $data["transc2"]=TranscManager::generateTranscFragmentsPerPage($transcId);
+        $this->view->render($response, 'view/transc.twig', ["webInfo" => $webInfo, "data" => $data]);
     }
 
     /**
@@ -107,6 +124,53 @@ class SiteController extends BaseController {
             ->first()
             ->toArray();
         $this->view->render($response, 'view/imgbox.twig', ["webInfo" => $webInfo, "data" => $data]);
+    }
+
+
+    /**
+     * Erstellt eine neue Eigenschaft
+     * @param Request $request
+     * @param Response $response
+     *
+     * POST-REQUEST "/transc/{transc_id}/edit"
+     */
+    function setTextProperty(Request $request, Response $response){
+        $params=$request->getParsedBody();
+        if (isset($params["index"])){
+
+            # Erstelle neue Property, fülle diese
+            $property=new StandoffProperty();
+            $property->property_name=$params["property"];
+            if (isset($request->getQueryParams()["value"])){
+                $property->property_value=$request->getQueryParams()["value"];
+            }
+            $property->type="text";
+            $property->transc_page_id=$request->getAttributes()["transc_id"];
+            $property->save();
+            # Erstelle ebenfalls die Erweiterung mit der ID der gerade angelegten Property.
+            $propertyExtension = new StandoffPropertyText();
+            $propertyExtension->id=$property->id;
+            $propertyExtension->index=$params["index"];
+            $propertyExtension->length=$params["length"];
+            $propertyExtension->save();
+        }
+
+        $this->getTranscription($request, $response);
+    }
+
+
+    /**
+     * Löscht gewählte Eigenschaft
+     * @param Request $request
+     * @param Response $response
+     *
+     * DELETE-REQUEST "/transc/{transc_id}/edit"
+     */
+    function deleteTextProperty(Request $request, Response $response){
+        $propertyId=$request->getQueryParams()["property_id"];
+        StandoffProperty::find($propertyId)->delete();
+        StandoffPropertyText::find($propertyId)->delete();
+        $this->getTranscription($request, $response);
     }
 
 

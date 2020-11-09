@@ -11,7 +11,7 @@ class Transcription extends BaseModel
 
     public function pages()
     {
-        return $this->hasMany('App\models\TranscriptionPage', "transcription_id", "id");
+        return $this->hasMany('App\models\TranscriptionPage', "transcription_id", "id")->orderBy("page_number", "asc");
     }
 
     public function document()

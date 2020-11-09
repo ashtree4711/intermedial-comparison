@@ -26,8 +26,12 @@ $app->get('/chunks/{chunk_id}/{occurrence_id}', '\App\controllers\SiteController
 $app->get('/works/{work_id}/chunks/{chunk_no}', '\App\controllers\SiteController:showComparison');
 
 
+$app->get('/transc/{transc_id}/edit', '\App\controllers\SiteController:getTranscription' );
+$app->post('/transc/{transc_id}/edit', '\App\controllers\SiteController:setTextProperty' );
+$app->delete('/transc/{transc_id}/edit', '\App\controllers\SiteController:deleteTextProperty' );
+$app->get('/transc/{transc_id}', '\App\controllers\SiteController:getStyledTranscription' );
+
 $app->get('/plaintexts/{plaintext_id}', '\App\controllers\SiteController:getPlaintext' );
-$app->get('/plaintexts/{plaintext_id}/edit', '\App\controllers\SiteController:getPlaintextEdit' );
 $app->get('/faksimile/{page_id}', '\App\controllers\SiteController:getFaksimile' );
 
 

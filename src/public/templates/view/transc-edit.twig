@@ -1,0 +1,134 @@
+{% extends "base.twig" %}
+
+
+{% block content %}
+    <div class="container-fluid d-flex flex-column mt-5">
+        <div class="jumbotron bg-secondary w-100 text-center">
+            <h2>{{ data.page.transcription_page.transcription.document.identifier }}</h2>
+            <h5>{{ data.page.transcription_page.transcription.document.country }}, {{ data.page.transcription_page.transcription.document.location }}, {{ data.page.transcription_page.transcription.document.repository }}, {{ data.page.transcription_page.transcription.document.idno }}</h5>
+            <h6>Page: {{ data.page.transcription_page.page_number }} [{% if data.page.transcription_page.page_folio %}Folio: {{ data.page.transcription_page.page_folio }},{% endif %}Plaintext: {{ data.page.transcription_page.plaintext_id }}]</h6>
+        </div>
+        <div id="content_wrapper" class="d-flex justify-content-center">
+            <div style="width: 10vw; max-height: 50vh; overflow-y: scroll">
+                <ul class="list-group">
+                    {%  for property in data.properties %}
+                        <li class="list-group-item prop_item d-flex justify-content-between" property-id="{{ property.id }}">
+                            <span>
+                                {{ property.property_name }} {% if property.property_value %}=> {{ property.property_value }}{% endif %}
+                            </span>
+                            <i class="fas fa-times-circle text-danger d-none" hx-delete="http://localhost:8000/transc/{{ data.id }}/edit?property_id={{ property.id }}" hx-swap="outerHTML" hx-target="#content_wrapper"  hx-select="#content_wrapper" ></i>
+
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card" style="width: 30vw">
+                <div class="card-header">
+                    Preview
+                </div>
+                <div class="card-body" style="max-height: 50vh ; overflow-y: scroll">
+                    {% include 'view/transc.twig'  %}
+                </div>
+
+            </div>
+
+            <div class="card" style="width: 30vw">
+                <div class="card-header">
+                    Editor
+                    <br>
+
+
+                </div>
+                <div class="card-body d-flex justify-content-between pl-0">
+                    <div class="toolbar" style="width: 10%">
+
+                        <div class="btn-group-vertical btn-group-sm">
+                            <button id="showIndex" class="btn btn-info small">no</button>
+                            <button id="italicButton" type="button" class="btn btn-secondary" hx-swap="outerHTML" hx-target="#content_wrapper"  hx-select="#content_wrapper" hx-post="http://localhost:8000/transc/{{ data.id }}/edit" hx-vars=""><i class="fas fa-italic"></i></button>
+                            <button id="boldButton" type="button" class="btn btn-secondary" hx-swap="outerHTML" hx-target="#content_wrapper"  hx-select="#content_wrapper" hx-post="http://localhost:8000/transc/{{ data.id }}/edit" hx-vars=""><i class="fas fa-bold"></i></button>
+                            <button id="underlineButton" type="button" class="btn btn-secondary" hx-swap="outerHTML" hx-target="#content_wrapper"  hx-select="#content_wrapper" hx-post="http://localhost:8000/transc/{{ data.id }}/edit" hx-vars=""><i class="fas fa-underline"></i></button>
+                            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#chunkModal">Chunk</button>
+                        </div>
+                    </div>
+                    <span class="content border" style="width: 80%; max-height: 50vh ; overflow-y: scroll">
+                        {{- data.page.content -}}
+                    </span>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal" id="chunkModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Select Chunk</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <ul class="list-group">
+                            {% for work in data.works %}
+                            <li class="list-group-item">
+                                <h5>{{ work.name }} by {{ work.author }}</h5>
+                                <ul class="list-group-horizontal">
+                                    {% for chunk in work.chunks %}
+                                        <li class="list-inline-item">
+                                            <a class="chunkButton" hx-swap="outerHTML" hx-target="#content_wrapper"  hx-select="#content_wrapper" hx-post="http://localhost:8000/transc/{{ data.id }}/edit?value={{ chunk.id }}" hx-vars="">{{ chunk.chunk_no }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                            </li>
+
+                            {% endfor %}
+                        </ul>
+
+
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <script type="text/javascript">
+            $(document).on("mouseup", ".content", function () {
+                var selection = window.getSelection();
+                var range = selection.getRangeAt(0);
+                var startIndex = range.startOffset;
+                var endIndex = range.endOffset;
+                var selectionLength = endIndex - startIndex;
+                if (selectionLength===0){
+                    $("#showIndex").text("no selection");
+                } else {
+                    $("#showIndex").text("Selection: "+startIndex+"|"+selectionLength);
+                }
+                $('#italicButton').attr("hx-vars", "property: 'italics', index: "+startIndex+", length: "+selectionLength);
+                $('#boldButton').attr("hx-vars", "property: 'bold', index: "+startIndex+", length: "+selectionLength);
+                $('#underlineButton').attr("hx-vars", "property: 'underline', index: "+startIndex+", length: "+selectionLength);
+                $('.chunkButton').attr("hx-vars", "property: 'chunk', index: "+startIndex+", length: "+selectionLength);
+
+            });
+            $(document).on("mouseenter", ".prop_item", function () {
+                $('.property'+$(this).attr("property-id")).addClass("bg-info")
+                $(this).find(".text-danger").removeClass("d-none")
+            });
+
+            $(document).on("mouseleave", ".prop_item", function () {
+                $('.property'+$(this).attr("property-id")).removeClass("bg-info")
+                $(this).find(".text-danger").addClass("d-none")
+            });
+        </script>
+    </div>
+
+
+
+
+{% endblock %}

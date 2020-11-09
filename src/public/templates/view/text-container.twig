@@ -1,17 +1,26 @@
 <div id="text_container"  style="min-height: 85vh">
         <div class="bg-white text-dark p-1 m-1">
-                {% for mainocc in data.mainOccurrence %}
-                    {% set tpage = mainocc.transcription_page_with_text %}
-                        <code>
-                            {% if tpage.page_folio %}
-                                Folio: {{ tpage.page_folio }}
-                            {% else %}
-                                Seitennummer: {{ tpage.page_number }}
-                            {% endif %}
-                        </code>
-                        <p class="{% if tpage.language != "lat" %}rtl{% else %}{% endif %}">
-                            {{ mainocc.chunk_text }}
-                        </p>
-                {% endfor %}
+            {%- for page in data.mainOccurrence -%}
+                {%- for occurrence in page -%}
+                    {% set tpage = occurrence.transcription_page_with_text %}
+                    <code>
+                        {% if tpage.page_folio %}
+                            Folio: {{ tpage.page_folio }}
+                        {% else %}
+                            Seitennummer: {{ tpage.page_number }}
+                        {% endif %}
+                    </code>
+                    <p class="{% if tpage.language != "lat" %}rtl{% else %}{% endif %}">
+                        {%- for fragment in occurrence.fragments -%}
+                            <span class="{% for property in fragment.properties %}{% if property == "italics" %} font-italic {% elseif property=="bold" %} font-weight-bold {% elseif property == "underline" %} underline {% endif %}{% endfor %}">
+                            {{- fragment.text -}}
+                        </span>
+                        {%- endfor -%}
+                    </p>
+                {%- endfor -%}
+            {%- endfor -%}
         </div>
+    <div class="bg-light text-dark">
+
+    </div>
 </div>

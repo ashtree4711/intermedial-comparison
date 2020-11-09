@@ -1,27 +1,45 @@
-<div id="box{{ data.0.id }}"  class="card occ-box" style="min-height: 85vh">
+{% set first = data.0 %}
+<div id="box{{ first.0.id }}"  class="card occ-box" style="min-height: 85vh">
     <div class="card-header d-flex justify-content-between">
         <div>
             <span class="badge badge-primary">
-            {{ data.0.transcription_page_with_text.transcription.document.country }},
-            {{ data.0.transcription_page_with_text.transcription.document.location }},
-            {{ data.0.transcription_page_with_text.transcription.document.repository }},
-            {{ data.0.transcription_page_with_text.transcription.document.idno }}
+            {{ first.0.transcription_page_with_text.transcription.document.country }},
+            {{ first.0.transcription_page_with_text.transcription.document.location }},
+            {{ first.0.transcription_page_with_text.transcription.document.repository }},
+            {{ first.0.transcription_page_with_text.transcription.document.idno }}
             </span>
             <span class="badge badge-info">Transkription</span>
         </div>
         <div>
-            <a href="#" class="text-danger close-box" data-occ="{{  data.0.id }}">
+            <a href="#" class="text-danger close-box" data-occ="{{  first.0.id }}">
                 <i class="fas fa-times-circle"></i>
             </a>
         </div>
 
+
     </div>
     <div class="card-body">
         <div class="bg-white text-dark p-1 m-1">
-            {% for occ in data %}
-                <code>{% if occ.transcription_page_with_text.page_folio %}Folio: {{ occ.transcription_page_with_text.page_folio }}{% else %}Seitennummer: {{ occ.transcription_page_with_text.page_folio }}{% endif %}  </code>
-                <p class="{% if occ.transcription_page_with_text.language != "lat" %}rtl{% else %}{% endif %}">{{ occ.chunk_text }}</p>
-            {% endfor %}
+            {%- for page in data -%}
+                {%- for occurrence in page -%}
+                    {% set tpage = occurrence.transcription_page_with_text %}
+                    <code>
+                        {% if tpage.page_folio %}
+                            Folio: {{ tpage.page_folio }}
+                        {% else %}
+                            Seitennummer: {{ tpage.page_number }}
+                        {% endif %}
+                    </code>
+                    <p class="{% if tpage.language != "lat" %}rtl{% else %}{% endif %}">
+                        {%- for fragment in occurrence.fragments -%}
+                            <span class="{% for property in fragment.properties %}{% if property == "italics" %} font-italic {% elseif property=="bold" %} font-weight-bold {% elseif property == "underline" %} underline {% endif %}{% endfor %}">
+                            {{- fragment.text -}}
+                        </span>
+                        {%- endfor -%}
+                    </p>
+                {%- endfor -%}
+            {%- endfor -%}
+
         </div>
     </div>
 

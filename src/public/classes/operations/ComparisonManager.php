@@ -98,12 +98,19 @@ class ComparisonManager
      * @return array
      */
     private static function getOccurrencesWithinTranscription($chunk_id, $transcription_id){
+        /**
+         * NEU BESCHREIBEN
+         */
         # Hole alle Seiten der Transkription
+
         $transcription=Transcription::with("pages")
             ->where("id", "=", $transcription_id)
             ->first()
             ->toArray();
-        $mainOccurrences = array();
+
+        $occurrences = array();
+        // CHECK
+        //error_log(print_r($transcription["pages"], true));
         # Iteriere über alle verfügbaren Seiten und prüfe, ob diese eine Property besitzen, die auf den gewählten Chunk verweist
         for ($i=0; $i<count($transcription["pages"]); $i++) {
             $properties = StandoffProperty::with("transcription_page_with_text", "text_property")
@@ -112,14 +119,23 @@ class ComparisonManager
                 ->where("transc_page_id", "=", $transcription["pages"][$i]["id"])
                 ->get()
                 ->toArray();
+
+
             # Insofern ein oder mehrere Vorkommen pro Seite sind, beschneide den Plaintext, wie die jeweilige Property es auszeichnet
             if ($properties!=null){
-                foreach ($properties as $property)
-                    $property["chunk_text"]=substr($property["transcription_page_with_text"]["plaintext"]["content"], $property["text_property"]["index"], $property["text_property"]["length"] );
-                    array_push($mainOccurrences, $property);
+                //error_log(print_r($properties, true));
+                for ($j=0; $j<count($properties); $j++){
+                    $property=$properties[$j];
+                    //$property["chunk_text"]=substr($properties[$j]["transcription_page_with_text"]["plaintext"]["content"], $properties[$j]["text_property"]["index"], $properties[$j]["text_property"]["length"] );
+                    $property["transc_chunk"]=TranscManager::getStyledTranscription($properties[$j]["transc_page_id"], $properties[$j]["transcription_page_with_text"]["plaintext"]["content"], $properties[$j]["text_property"]["index"], $properties[$j]["text_property"]["length"]+$property["text_property"]["index"], false);
+                    $property["fragments"]=TranscManager::generateTranscFragmentsPerChunk($properties[$j]);
+                    //error_log(print_r($occurrences, true));
+                    $occurrences[$i][$j]=$property;
+                }
             }
         }
-        return $mainOccurrences;
+        //error_log(print_r($occurrences, true));
+        return $occurrences;
 
 
     }

@@ -24,7 +24,7 @@
                                             <ul class="list-group list-group-horizontal">
                                                 {% for transc in document.transcriptions %}
                                                     {% for page in transc.pages %}
-                                                    <li class="list-group-item" hx-get="{{ webInfo.baseurl }}plaintexts/{{ page.plaintext_id }}" hx-target="#fulltext_wrapper" hx-swap="outerHTML"><a data-toggle="tab" href="#fulltext-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
+                                                    <li class="list-group-item" hx-get="{{ webInfo.baseurl }}transc/{{ page.plaintext_id }}" hx-target="#fulltext_wrapper" hx-swap="innerHTML"><a data-toggle="tab" href="#fulltext-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
                                                         {% endfor %}
                                                 {% endfor %}
                                             </ul>
@@ -35,7 +35,7 @@
                                             <ul class="list-group list-group-horizontal">
                                                 {% for faks in document.faksimile %}
                                                     {% for page in faks.pages %}
-                                                        <li class="list-group-item list-group-item-faks" data-pageId="{{ page.id }}" data-imgLink="{{ page.image_link }}" hx-get="{{ webInfo.baseurl }}faksimile/{{ page.id }}" hx-target="#img_wrapper" hx-swap="outerHTML"><a data-toggle="tab" href="#img-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
+                                                        <li class="list-group-item list-group-item-faks" data-pageId="{{ page.id }}" data-imgLink="{{ page.image_link }}" hx-get="{{ webInfo.baseurl }}faksimile/{{ page.id }}" hx-target="#img_wrapper" hx-swap="innerHTML"><a data-toggle="tab" href="#img-viewer">{% if page.page_folio %}{{ page.page_folio }}{% else %}{{ page.page_number }}{% endif %}</a></li>
                                                     {% endfor %}
                                                 {% endfor %}
                                             </ul>
@@ -160,10 +160,6 @@
             L.tileLayer.iiif(url).addTo(map);
             map.fitBounds(bounds, true);
             map.invalidateSize();
-
-
-
-
         }
     </script>
 
