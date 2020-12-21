@@ -117,12 +117,12 @@
 
             });
             $(document).on("mouseenter", ".prop_item", function () {
-                $('.property'+$(this).attr("property-id")).addClass("bg-info")
+                $('.property'+$(this).attr("property-id")).addClass("bg-info");
                 $(this).find(".text-danger").removeClass("d-none")
             });
 
             $(document).on("mouseleave", ".prop_item", function () {
-                $('.property'+$(this).attr("property-id")).removeClass("bg-info")
+                $('.property'+$(this).attr("property-id")).removeClass("bg-info");
                 $(this).find(".text-danger").addClass("d-none")
             });
         </script>

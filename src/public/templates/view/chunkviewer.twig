@@ -2,6 +2,46 @@
 
 
 {% block content %}
+    <script>
+        function getDimensions(url){
+            var result = null;
+            $.ajax({
+                async: false,
+                url: url,
+                dataType: "json",
+                success: function(data){
+                    result = data;
+                }}
+            );
+            return result;
+        }
+        function getYCoords(leafletImgHeight, relativeY){
+            return leafletImgHeight / 100 * relativeY;
+        }
+
+        function getXCoords(leafletImgWidth, relativeX){
+            return leafletImgWidth / 100 * relativeX;
+        }
+        function createMap(id, image_link, y1, x1, y2, x2) {
+            var map = L.map(id, {
+                crs: L.CRS.Simple,
+                center: [0, 0],
+                zoom: 5
+            });
+            var url = image_link;
+            var dimensions = getDimensions(url);
+            let imgHeight=dimensions["height"];
+            let imgWidth=dimensions["width"];
+            var leafletImgHeight = imgHeight / -32.25;
+            var leafletImgWidth = imgWidth / 32.0;
+            var chunk = [[getYCoords(leafletImgHeight, y1),getXCoords(leafletImgWidth, x1)],[getYCoords(leafletImgHeight, y2), getXCoords(leafletImgWidth, x2)]];
+            L.rectangle(chunk).addTo(map);
+            var bounds = [[0,0], [1000,1000]];
+            L.tileLayer.iiif(url).addTo(map);
+            map.fitBounds(bounds, true);
+            map.invalidateSize();
+        }
+    </script>
 
     <div class="container-fluid d-flex justify-content-md-between mt-5">
         <div id="main-card" class="card view-area w-50 bg-dark text-white overflow-auto" >
@@ -101,49 +141,12 @@
             console.log($(this).attr("data-occ"));
             var target = "#dd-"+$(this).attr("data-occ");
             $(this).closest(".occ-box").remove();
-            $(target).removeClass("disabled border border-success")
+            $(target).removeClass("disabled border border-success");
             $("#linker"+$(this).attr("data-occ")).remove();
         });
 
 
-        function getDimensions(url){
-            var result = null;
-            $.ajax({
-                async: false,
-                url: url,
-                dataType: "json",
-                success: function(data){
-                    result = data;
-                }}
-            );
-            return result;
-        }
-        function getYCoords(leafletImgHeight, relativeY){
-            return leafletImgHeight / 100 * relativeY;
-        }
 
-        function getXCoords(leafletImgWidth, relativeX){
-            return leafletImgWidth / 100 * relativeX;
-        }
-        function createMap(id, image_link, y1, x1, y2, x2) {
-            var map = L.map(id, {
-                crs: L.CRS.Simple,
-                center: [0, 0],
-                zoom: 5
-            });
-            var url = image_link;
-            var dimensions = getDimensions(url);
-            let imgHeight=dimensions["height"];
-            let imgWidth=dimensions["width"];
-            var leafletImgHeight = imgHeight / -32.25;
-            var leafletImgWidth = imgWidth / 32.0;
-            var chunk = [[getYCoords(leafletImgHeight, y1),getXCoords(leafletImgWidth, x1)],[getYCoords(leafletImgHeight, y2), getXCoords(leafletImgWidth, x2)]];
-            L.rectangle(chunk).addTo(map);
-            var bounds = [[0,0], [1000,1000]];
-            L.tileLayer.iiif(url).addTo(map);
-            map.fitBounds(bounds, true);
-            map.invalidateSize();
-        }
 
 
         $(document).ready(function(){

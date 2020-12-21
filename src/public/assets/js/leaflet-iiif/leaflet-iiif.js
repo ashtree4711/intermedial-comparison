@@ -213,9 +213,8 @@ L.TileLayer.Iiif = L.TileLayer.extend({
 
         function ceilLog2(x) {
           return Math.ceil(Math.log(x) / Math.LN2);
-        };
-
-        // Calculates maximum native zoom for the layer
+        }
+          // Calculates maximum native zoom for the layer
         _this.maxNativeZoom = Math.max(
           ceilLog2(_this.x / _this.options.tileSize),
           ceilLog2(_this.y / _this.options.tileSize),

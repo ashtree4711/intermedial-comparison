@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\models;
-
 
 class Chunk extends BaseModel
 {
@@ -17,8 +15,4 @@ class Chunk extends BaseModel
     protected $table = "chunks";
     protected $primaryKey ="id";
     public $timestamps = false;
-
-
-
-
 }

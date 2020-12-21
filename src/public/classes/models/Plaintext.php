@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\models;
-
 
 class Plaintext extends BaseModel
 {
@@ -13,8 +11,6 @@ class Plaintext extends BaseModel
     {
         return $this->hasOne('App\models\TranscriptionPage', "id", "id")->with("transcription");
     }
-
-
 
     protected $table = "plaintexts";
     protected $primaryKey ="id";

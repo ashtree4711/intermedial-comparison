@@ -2,6 +2,23 @@
 
 
 {% block content %}
+    <script>
+        function createMap(id, image_link="https://bilderberg.uni-koeln.de/iipsrv/iipsrv.fcgi?IIIF=books/BOOK-DARE-M-FR-PAR-BNF-heb.884/pyratiff/BOOK-DARE-M-FR-PAR-BNF-heb.884-0028.tif/info.json"){
+            const map = L.map(id, {
+                crs: L.CRS.Simple,
+                //center: [0, 0],
+                zoom: 5
+            });
+
+            var url = image_link;
+            var bounds = [[0,0], [1000,1000]];
+            L.tileLayer.iiif(url).addTo(map);
+            map.fitBounds(bounds, true);
+            map.invalidateSize();
+        }
+
+
+    </script>
     <div class="container-fluid d-flex flex-column mt-5">
         <div class="jumbotron bg-secondary w-100">
             Intermedialer Vergleich
@@ -61,12 +78,14 @@
                 <h3 class="text-center">Quickviewer</h3>
                 <div>
                     <div class="tab-content">
-                        <div id="fulltext-viewer" class="tab-pane fade" style="overflow-y: auto; max-height: 65vh">
+                        <div id="fulltext-viewer" class="tab-pane fade " style="overflow-y: auto; max-height: 65vh">
                             <div id="fulltext_wrapper">
                             </div>
                         </div>
-                        <div id="img-viewer" class="tab-pane fade">
-                            <div id="img_wrapper"></div>
+                        <div id="img-viewer" class="tab-pane fade show active " style="min-width: 50vw!important; min-height: 80vh!important;">
+                            <div id="img_wrapper">
+
+                            </div>
                         </div>
                         <div id="chunks-viewer" class="tab-pane fade" style="overflow-y: auto; max-height: 65vh">
                             {% for work in data.works %}
@@ -82,7 +101,7 @@
                                                         <i class="far fa-file-image"></i> {{ occ.faksimile_page.faksimile.document.country }}, {{ occ.faksimile_page.faksimile.document.location }}, {{ occ.faksimile_page.faksimile.document.repository }}, {{ occ.faksimile_page.faksimile.document.idno }}, <strong>{% if occ.faksimile_page.page_folio %}{{ occ.faksimile_page.page_folio }}{% else %}{{ occ.faksimile_page.page_number }}{% endif %}</strong>
                                                     {% endif %}
                                                 </span>
-                                                <a href="{{ webInfo.baseurl }}works/{{ work.id }}/chunks/{{ chunk.chunk_no }}?occurrence={{ occ.id }}" data-toggle="tooltip" title="Show/Compare Chunk"><i class="fas fa-bullseye"></i></a>
+                                                <a href="{{ webInfo.baseurl }}works/{{ work.id }}/chunks/{{ chunk.chunk_no }}?occurrence={{ occ.id }}" ><i class="fas fa-bullseye"></i></a>
 
                                             </li>
                                         {% endfor %}
@@ -149,18 +168,7 @@
             $('[data-toggle="tab"]').removeClass("active");
         });
 
-        function createMap(id, image_link){
-            var map = L.map(id, {
-                crs: L.CRS.Simple,
-                center: [0, 0],
-                zoom: 5
-            });
-            var url = image_link;
-            var bounds = [[0,0], [1000,1000]];
-            L.tileLayer.iiif(url).addTo(map);
-            map.fitBounds(bounds, true);
-            map.invalidateSize();
-        }
+
     </script>
 
 

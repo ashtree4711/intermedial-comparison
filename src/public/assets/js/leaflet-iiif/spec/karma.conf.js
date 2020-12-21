@@ -1,6 +1,6 @@
 // Karma configuration
 // Generated on Wed Mar 16 2016 06:58:00 GMT-0700 (PDT)
-process.env.CHROME_BIN = require('puppeteer').executablePath()
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function(config) {
   config.set({
@@ -75,4 +75,4 @@ module.exports = function(config) {
     // how many browser should be started simultaneous
     concurrency: Infinity
   })
-}
+};

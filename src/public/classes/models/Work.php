@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\models;
-
 
 class Work extends BaseModel
 {
@@ -18,8 +16,5 @@ class Work extends BaseModel
     protected $table = "works";
     protected $primaryKey ="id";
     public $timestamps = false;
-
-
-
 
 }

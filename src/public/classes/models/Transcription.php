@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\models;
-
 
 class Transcription extends BaseModel
 {
@@ -19,12 +17,7 @@ class Transcription extends BaseModel
         return $this->hasOne('App\models\Document', "identifier", "identifier");
     }
 
-
     protected $table = "transcriptions";
     protected $primaryKey ="id";
     public $timestamps = false;
-
-
-
-
 }

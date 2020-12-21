@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\models;
-
 
 class StandoffProperty extends BaseModel
 {
@@ -32,8 +30,5 @@ class StandoffProperty extends BaseModel
     protected $table = "standoff_properties";
     protected $primaryKey ="id";
     public $timestamps = false;
-
-
-
 
 }

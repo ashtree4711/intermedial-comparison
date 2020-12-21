@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\models;
-
 
 class TranscriptionPage extends BaseModel
 {
@@ -22,8 +20,4 @@ class TranscriptionPage extends BaseModel
     protected $table = "transcription_pages";
     protected $primaryKey ="id";
     public $timestamps = false;
-
-
-
-
 }

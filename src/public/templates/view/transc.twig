@@ -1,7 +1,8 @@
 
 <p>
-    {%- for fragment in data.transc2 -%}
-        <span class="{% for property in fragment.properties %}{% if property == "italics" %} font-italic {% elseif property=="bold" %} font-weight-bold {% elseif property == "underline" %} underline {% elseif property == "chunk" %} bg-warning {% endif %}{% endfor %}">
+    {%- for fragment in data.transc -%}
+        <span class="{% for property in fragment.properties %}
+                {% if property == "italics" %} font-italic {% elseif property=="bold" %} font-weight-bold {% elseif property == "underline" %} underline {% elseif property == "chunk" %} bg-warning {% endif %}{% endfor %}">
         {{- fragment.text -}}
         </span>
     {%- endfor -%}

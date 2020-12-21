@@ -1,7 +1,5 @@
 <?php
 namespace App\controllers;
-use App\models\Chunk;
-use App\models\Document;
 use App\models\FaksimilePage;
 use App\models\Plaintext;
 use App\models\StandoffProperty;
@@ -67,11 +65,18 @@ class SiteController extends BaseController {
         $chunkId = $request->getAttributes()["chunk_id"];
         $occId = $request->getAttributes()["occurrence_id"];
         $data = ComparisonManager::getOccurrenceById($chunkId, $occId);
-        if ($data[0][0]["type"]=="text"){
-            $this->view->render($response, 'view/text-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
+        error_log(print_r($data, true));
+        if (isset($data[0][0]["type"])){
+            if ($data[0][0]["type"]=="text"){
+                $this->view->render($response, 'view/text-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
+            } else {
+                $this->view->render($response, 'view/map-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
+            }
+
         } else {
             $this->view->render($response, 'view/map-container.secondary.twig', ["webInfo" => $webInfo, "data" => $data]);
         }
+
     }
 
     /**
@@ -87,6 +92,12 @@ class SiteController extends BaseController {
         $this->view->render($response, 'view/textbox.twig', ["data" => $data]);
     }
 
+    /**
+     * Holt den rohen Text einer Seite ohne Properties. Wird für den Editor genutzt.
+     * @param Request $request
+     * @param Response $response
+     * GET-Request "/transc/{transc_id}/edit"
+     */
     function getTranscription(Request $request, Response $response){
         $webInfo["baseurl"]=$this->baseUrl;
         $transcId=$request->getAttributes()["transc_id"];
@@ -94,19 +105,22 @@ class SiteController extends BaseController {
         $data["page"]=Plaintext::where("id", "=", $transcId)->with("transcription_page")->first();
         $data["works"]=Work::with("chunks")->get()->toArray();
         $data["properties"]=StandoffProperty::where("transc_page_id", "=", $transcId)->get();
-        //$data["transc"]=TranscManager::getStyledTranscription($transcId, $data["page"]["content"]);
-        $data["transc2"]=TranscManager::generateTranscFragmentsPerPage($transcId);
+        $data["transc"]=TranscManager::generateTranscFragmentsPerPage($transcId);
         $this->view->render($response, 'view/transc-edit.twig', ["webInfo" => $webInfo, "data" => $data]);
     }
 
-
+    /**
+     * Holt die Text-Fragmente mit den Style-Properties
+     * @param Request $request
+     * @param Response $response
+     * GET-Request "'/transc/{transc_id}'"
+     */
     function  getStyledTranscription(Request $request, Response $response){
         $webInfo["baseurl"]=$this->baseUrl;
         $transcId=$request->getAttributes()["transc_id"];
         $data["id"]=$transcId;
         $data["page"]=Plaintext::where("id", "=", $transcId)->with("transcription_page")->first();
-        //$data["transc"]=TranscManager::getStyledTranscription($transcId, $data["page"]["content"]);
-        $data["transc2"]=TranscManager::generateTranscFragmentsPerPage($transcId);
+        $data["transc"]=TranscManager::generateTranscFragmentsPerPage($transcId);
         $this->view->render($response, 'view/transc.twig', ["webInfo" => $webInfo, "data" => $data]);
     }
 
@@ -125,7 +139,6 @@ class SiteController extends BaseController {
             ->toArray();
         $this->view->render($response, 'view/imgbox.twig', ["webInfo" => $webInfo, "data" => $data]);
     }
-
 
     /**
      * Erstellt eine neue Eigenschaft
@@ -158,7 +171,6 @@ class SiteController extends BaseController {
         $this->getTranscription($request, $response);
     }
 
-
     /**
      * Löscht gewählte Eigenschaft
      * @param Request $request
@@ -172,15 +184,4 @@ class SiteController extends BaseController {
         StandoffPropertyText::find($propertyId)->delete();
         $this->getTranscription($request, $response);
     }
-
-
-
-
-
-
-
-
-
-
-
 }

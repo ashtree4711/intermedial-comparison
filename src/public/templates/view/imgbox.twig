@@ -1,9 +1,17 @@
 
-<div class="view-area" style="min-height: 60vh!important; min-width: 33vw!important;">
-    <div id="mymap" class="leaflet-container">
+<div class="view-area d-flex justify-content-start text-dark"  style="overflow-x: auto">
+    <div class="card" style="min-height: 80vh; min-width: 49vw">
+        <div id="mymap" class="leaflet-containe  border border-secondary">
 
+        </div>
+        <script type="text/javascript">
+            var imglink = "{{ data.image_link }}";
+            if (imglink===""){
+                createMap("mymap")
+            } else {
+                createMap("mymap", imglink)
+            }
+        </script>
     </div>
+
 </div>
-<script type="text/javascript">
-    createMap("mymap", "{{ data.image_link }}")
-</script>

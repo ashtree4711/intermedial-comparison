@@ -53,7 +53,7 @@ describe('L.TileLayer.Iiif', function() {
       largeTileSize.on('load', function() {
         expect(largeTileSize.options.minZoom).toBe(-2);
         expect(largeTileSize.options.minNativeZoom).toBe(-2);
-        expect(largeTileSize._prev_map_layersMinZoom).toBe(0)
+        expect(largeTileSize._prev_map_layersMinZoom).toBe(0);
         done();
       });
     });
@@ -83,7 +83,7 @@ describe('L.TileLayer.Iiif', function() {
       iiifLayer.on('load', function() {
         var i = 0;
         eachImg(iiifLayer, function (img) {
-          expect(img.src).toBe('http://localhost:9876/base/fixtures/mlk/0,0,5426,3820/679,/0/default.jpg')
+          expect(img.src).toBe('http://localhost:9876/base/fixtures/mlk/0,0,5426,3820/679,/0/default.jpg');
           i++;
         });
         done();
@@ -96,7 +96,7 @@ describe('L.TileLayer.Iiif', function() {
       v3Image.on('load', function() {
         var i = 0;
         eachImg(v3Image, function (img) {
-          expect(img.src).toBe('http://localhost:9876/base/fixtures/v3/0,0,2000,1271/500,318/0/default.jpg')
+          expect(img.src).toBe('http://localhost:9876/base/fixtures/v3/0,0,2000,1271/500,318/0/default.jpg');
           i++;
         });
         done();
